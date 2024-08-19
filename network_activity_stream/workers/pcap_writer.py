@@ -31,7 +31,7 @@ def write_to_file_worker():
                 # Write the chunk to a file
                 output_file = f"{output_file_prefix}{chunk_index}.pcap"
                 wrpcap(output_file, packets)
-                print(f"Saved chunk {chunk_index} with size {format_mb(current_chunk_size)} MB to {output_file}")
+                print(f"Saved chunk {chunk_index} with size {format_mb(current_chunk_size)} to {output_file}")
 
                 # Reset for the next chunk
                 chunk_index += 1
