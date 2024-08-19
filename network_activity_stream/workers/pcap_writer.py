@@ -1,0 +1,42 @@
+import queue
+
+from scapy.all import wrpcap
+
+from network_activity_stream.shared_state import packet_queue
+from network_activity_stream.utils import format_mb
+
+CHUNK_SIZE = 100 * 1024 * 1024  # 100 MB
+output_file_prefix = "captured_chunk_"
+current_chunk_size = 0
+chunk_index = 0
+
+
+def write_to_file_worker():
+    """
+    Worker thread that writes packets to files in chunks.
+    """
+    global current_chunk_size, chunk_index
+    packets = []
+
+    while True:
+        try:
+            # Get a packet from the queue
+            packet = packet_queue.get(timeout=1)
+            packet_size = len(packet)
+            packets.append(packet)
+            current_chunk_size += packet_size
+
+            # Check if the current chunk size exceeds the CHUNK_SIZE
+            if current_chunk_size >= CHUNK_SIZE:
+                # Write the chunk to a file
+                output_file = f"{output_file_prefix}{chunk_index}.pcap"
+                wrpcap(output_file, packets)
+                print(f"Saved chunk {chunk_index} with size {format_mb(current_chunk_size)} MB to {output_file}")
+
+                # Reset for the next chunk
+                chunk_index += 1
+                packets = []
+                current_chunk_size = 0
+
+        except queue.Empty:
+            continue  # Continue if the queue is empty

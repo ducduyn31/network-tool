@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "network-activity-stream"
+version = "0.1.0"
+description = ""
+authors = ["ducduyn31 <ducduy.ababat@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.14"
+psutil = "^6.0.0"
+scapy = "^2.5.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.poetry.scripts]
+network-capture = "network_activity_stream.main:main"
+build-network-capture = "scripts.build:main"
