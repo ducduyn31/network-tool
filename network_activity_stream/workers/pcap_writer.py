@@ -9,14 +9,14 @@ CHUNK_SIZE = 100 * 1024 * 1024  # 100 MB
 output_file_prefix = "captured_chunk_"
 current_chunk_size = 0
 chunk_index = 0
+packets = []
 
 
 def write_to_file_worker():
     """
     Worker thread that writes packets to files in chunks.
     """
-    global current_chunk_size, chunk_index
-    packets = []
+    global current_chunk_size, chunk_index, packets
 
     while True:
         try:
@@ -40,3 +40,18 @@ def write_to_file_worker():
 
         except queue.Empty:
             continue  # Continue if the queue is empty
+
+def flush_packets_to_file():
+    """
+    Flush the remaining packets in the queue to a file.
+    """
+    global current_chunk_size, chunk_index, packets
+
+    if packets:
+        output_file = f"{output_file_prefix}{chunk_index}.pcap"
+        wrpcap(output_file, packets)
+        print(f"Flushed remaining packets to {output_file} with size {format_mb(current_chunk_size)} MB")
+
+        # Reset the packet list and chunk size
+        packets = []
+        current_chunk_size = 0

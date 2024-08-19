@@ -1,11 +1,13 @@
 import argparse
 import threading
+import signal
+import sys
 
 from scapy.all import sniff
 
 from network_activity_stream.packet_sniffer import sniff_callback_builder
 from network_activity_stream.utils import select_network_interfaces
-from network_activity_stream.workers.pcap_writer import write_to_file_worker
+from network_activity_stream.workers.pcap_writer import write_to_file_worker, flush_packets_to_file
 from network_activity_stream.workers.reporter import periodic_report
 
 
@@ -19,6 +21,15 @@ def parse_arguments():
     )
     return parser.parse_args()
 
+
+def signal_handler(sig, frame):
+    """
+    Handle termination signals (e.g., Ctrl+C).
+    This function flushes the packet queue to a file before exiting.
+    """
+    print("Termination signal received. Flushing remaining packets to file...")
+    flush_packets_to_file()
+    sys.exit(0)
 
 def start_workers():
     """
@@ -39,6 +50,9 @@ def start_workers():
 
 
 def main():
+    # Register the signal handler for SIGINT (Ctrl+C)
+    signal.signal(signal.SIGINT, signal_handler)
+
     args = parse_arguments()
 
     start_workers()
