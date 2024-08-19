@@ -6,7 +6,7 @@ from network_activity_stream.shared_state import packet_queue
 from network_activity_stream.utils import format_mb
 
 CHUNK_SIZE = 100 * 1024 * 1024  # 100 MB
-output_file_prefix = "captured_chunk_"
+output_file_prefix = "captured/captured_chunk_"
 current_chunk_size = 0
 chunk_index = 0
 packets = []
@@ -50,7 +50,7 @@ def flush_packets_to_file():
     if packets:
         output_file = f"{output_file_prefix}{chunk_index}.pcap"
         wrpcap(output_file, packets)
-        print(f"Flushed remaining packets to {output_file} with size {format_mb(current_chunk_size)} MB")
+        print(f"Flushed remaining packets to {output_file} with size {format_mb(current_chunk_size)}")
 
         # Reset the packet list and chunk size
         packets = []
